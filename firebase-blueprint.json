@@ -1,0 +1,62 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "User profile, voice settings, and preferences for ROBBY AI",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Authenticated user UID" },
+        "name": { "type": "string", "description": "Display name" },
+        "language": { "type": "string", "enum": ["en", "ur"], "description": "Preferred language (Urdu or English)" },
+        "voiceEnabled": { "type": "boolean", "description": "Whether voice responses are enabled" },
+        "hudTheme": { "type": "string", "description": "Theme: cyan_arc, emerald_matrix, or crimson_core" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last update timestamp" }
+      },
+      "required": ["userId", "language"]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "Conversation dialogue with Robby AI",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Message ID" },
+        "userId": { "type": "string", "description": "Owner user UID" },
+        "role": { "type": "string", "enum": ["user", "assistant"], "description": "Sender role" },
+        "content": { "type": "string", "description": "Message text" },
+        "language": { "type": "string", "description": "Urdu or English tag" },
+        "actionExecuted": { "type": "string", "description": "Action performed (e.g., app launch, timer, etc.)" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["userId", "role", "content"]
+    },
+    "QuickNote": {
+      "title": "Quick Note",
+      "description": "User notes recorded by voice or text",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Note ID" },
+        "userId": { "type": "string", "description": "Owner user UID" },
+        "title": { "type": "string", "description": "Note title" },
+        "body": { "type": "string", "description": "Note content" },
+        "category": { "type": "string", "description": "Category tag" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp" }
+      },
+      "required": ["userId", "title", "body"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Root user profile document"
+    },
+    "/users/{userId}/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "User chat messages subcollection"
+    },
+    "/users/{userId}/notes/{noteId}": {
+      "schema": "QuickNote",
+      "description": "User quick notes subcollection"
+    }
+  }
+}

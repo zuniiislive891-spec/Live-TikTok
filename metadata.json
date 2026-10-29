@@ -1,0 +1,6 @@
+{
+  "name": "ROBBY AI",
+  "description": "Your Personal AI Assistant with voice interaction, smart device commands, and futuristic JARVIS HUD.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

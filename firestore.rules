@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['userId', 'language']) &&
+        data.userId is string &&
+        data.language in ['en', 'ur'] &&
+        (!('name' in data) || data.name is string) &&
+        (!('voiceEnabled' in data) || data.voiceEnabled is bool) &&
+        (!('hudTheme' in data) || data.hudTheme is string) &&
+        (!('updatedAt' in data) || data.updatedAt is timestamp);
+    }
+
+    function isValidChatMessage(data) {
+      return data.keys().hasAll(['userId', 'role', 'content']) &&
+        data.userId is string &&
+        data.role in ['user', 'assistant'] &&
+        data.content is string &&
+        (!('language' in data) || data.language is string) &&
+        (!('actionExecuted' in data) || data.actionExecuted is string) &&
+        (!('createdAt' in data) || data.createdAt is timestamp);
+    }
+
+    function isValidQuickNote(data) {
+      return data.keys().hasAll(['userId', 'title', 'body']) &&
+        data.userId is string &&
+        data.title is string &&
+        data.body is string &&
+        (!('category' in data) || data.category is string) &&
+        (!('createdAt' in data) || data.createdAt is timestamp) &&
+        (!('updatedAt' in data) || data.updatedAt is timestamp);
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId) && isValidUserProfile(request.resource.data);
+      allow delete: if isOwner(userId);
+
+      match /messages/{messageId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidChatMessage(request.resource.data) && request.resource.data.userId == userId;
+        allow delete: if isOwner(userId);
+      }
+
+      match /notes/{noteId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidQuickNote(request.resource.data) && request.resource.data.userId == userId;
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}
